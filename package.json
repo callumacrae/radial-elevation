@@ -1,0 +1,20 @@
+{
+  "name": "radial-elevation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^4.4.0"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.1",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
