@@ -97,11 +97,18 @@ Promise.all([
 
 			const degs = halfwayAngle / Math.PI * 180 + 90;
 
-			svg.append('text')
+			const group = svg.append('g')
+				.attr('transform', `translate(${textX}, ${textY}) rotate(${((degs + 90) % 180) - 90})`);
+
+			group.append('text')
 				.text(meta.name.toUpperCase())
 				.attr('class', 'day')
-				.attr('y', 9)
-				.attr('transform', `translate(${textX}, ${textY}) rotate(${((degs + 90) % 180) - 90})`)
+				.attr('y', -5);
+
+			group.append('text')
+				.text(`${meta.distance} miles`)
+				.attr('class', 'meta')
+				.attr('y', 9);
 		});
 
 		svg.append('path')
