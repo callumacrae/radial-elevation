@@ -39,17 +39,17 @@ Promise.all([
 				return `${num}m`;
 			});
 
-		// @todo: Rotate text slightly to appear curved
 		svg.append('g')
 			.call(axis)
 			.attr('class', 'axis')
-			.attr('transform', 'translate(400, -100)');
+			.attr('transform', 'translate(400, -100)')
+			.selectAll('text')
+			.attr('transform', 'rotate(3)');
 
-		// @todo: Make arc stop next to text
 		const arc = d3.arc()
 			.innerRadius((d) => elevationScale(d) - 1)
 			.outerRadius(elevationScale)
-			.startAngle(Math.PI / 16)
+			.startAngle((d) => 37 / elevationScale(d))
 			.endAngle(Math.PI * 2);
 
 		svg.selectAll('.circle-axis')
