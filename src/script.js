@@ -30,6 +30,36 @@ Promise.all([
 			.domain(extent)
 			.range([150, 350]);
 
+		const tickVals = [];
+
+		const axis = d3.axisRight(elevationScale.copy().range(elevationScale.range().reverse()))
+			.ticks(4)
+			.tickFormat((num) => {
+				tickVals.push(num);
+				return `${num}m`;
+			});
+
+		// @todo: Rotate text slightly to appear curved
+		svg.append('g')
+			.call(axis)
+			.attr('class', 'axis')
+			.attr('transform', 'translate(400, -100)');
+
+		// @todo: Make arc stop next to text
+		const arc = d3.arc()
+			.innerRadius((d) => elevationScale(d) - 1)
+			.outerRadius(elevationScale)
+			.startAngle(Math.PI / 16)
+			.endAngle(Math.PI * 2);
+
+		svg.selectAll('.circle-axis')
+			.data(tickVals)
+			.enter()
+			.append('path')
+			.attr('class', 'circle-axis')
+			.attr('d', arc)
+			.attr('transform', `translate(${width / 2}, ${height / 2})`);
+
 		let offset = 0;
 		let path = '';
 
@@ -51,8 +81,10 @@ Promise.all([
 		datas.forEach(({ meta }) => {
 			const angle = distanceScale(meta.startAngle);
 
-			const x = dp(390 * Math.cos(angle), 1);
-			const y = dp(390 * Math.sin(angle), 1);
+			const radius = elevationScale(tickVals[tickVals.length - 1]);
+
+			const x = dp(radius * Math.cos(angle), 1);
+			const y = dp(radius * Math.sin(angle), 1);
 
 			svg.append('path')
 				.attr('d', `M ${width / 2} ${height / 2} l ${x} ${y}`)
@@ -60,14 +92,15 @@ Promise.all([
 
 			const halfwayAngle = distanceScale((meta.startAngle + meta.endAngle) / 2);
 
-			const textX = width / 2 + dp(350 * Math.cos(halfwayAngle), 1);
-			const textY = height / 2 + dp(350 * Math.sin(halfwayAngle), 1);
+			const textX = width / 2 + dp(365 * Math.cos(halfwayAngle), 1);
+			const textY = height / 2 + dp(365 * Math.sin(halfwayAngle), 1);
 
 			const degs = halfwayAngle / Math.PI * 180 + 90;
 
 			svg.append('text')
 				.text(meta.name.toUpperCase())
 				.attr('class', 'day')
+				.attr('y', 9)
 				.attr('transform', `translate(${textX}, ${textY}) rotate(${((degs + 90) % 180) - 90})`)
 		});
 
