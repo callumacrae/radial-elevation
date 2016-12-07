@@ -58,7 +58,7 @@ Promise.all([
 			.append('path')
 			.attr('class', 'circle-axis')
 			.attr('d', arc)
-			.attr('transform', `translate(${width / 2}, ${height / 2})`);
+			.attr('transform', `translate(${width / 2}, ${width / 2})`);
 
 		let offset = 0;
 		let path = '';
@@ -72,7 +72,7 @@ Promise.all([
 				}
 
 				const x = dp(width / 2 + elevationScale(d.ele) * Math.cos(distanceScale(d.dist + offset)), 1);
-				const y = dp(height / 2 + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
+				const y = dp(width / 2 + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
 
 				return `L ${x} ${y}`;
 			}).join(' ');
@@ -95,13 +95,13 @@ Promise.all([
 			const y = dp(radius * Math.sin(angle), 1);
 
 			svg.append('path')
-				.attr('d', `M ${width / 2} ${height / 2} l ${x} ${y}`)
+				.attr('d', `M ${width / 2} ${width / 2} l ${x} ${y}`)
 				.attr('class', 'divider');
 
 			const halfwayAngle = distanceScale((meta.startAngle + meta.endAngle) / 2);
 
 			const textX = width / 2 + dp(365 * Math.cos(halfwayAngle), 1);
-			const textY = height / 2 + dp(365 * Math.sin(halfwayAngle), 1);
+			const textY = width / 2 + dp(365 * Math.sin(halfwayAngle), 1);
 
 			const degs = halfwayAngle / Math.PI * 180 + 90;
 
@@ -158,19 +158,26 @@ Promise.all([
 			.text('LANDS END TO')
 			.attr('class', 'title')
 			.attr('x', width / 2)
-			.attr('y', height / 2 - 20);
+			.attr('y', width / 2 - 20);
 
 		svg.append('text')
 			.text('JOHN O\'GROATS')
 			.attr('class', 'title')
 			.attr('x', width / 2)
-			.attr('y', height / 2 + 20);
+			.attr('y', width / 2 + 20);
 
 		svg.append('text')
 			.text('2016')
 			.attr('class', 'title')
 			.attr('x', width / 2)
-			.attr('y', height / 2 + 60);
+			.attr('y', width / 2 + 60);
+
+
+		// Six days
+		// (31st July to 5th August)
+		// Reuben, Daniel, Jørgen, and Callum
+		// 1018 miles
+		// 50,048ft climbed
 	});
 
 function dp(num, figs) {
