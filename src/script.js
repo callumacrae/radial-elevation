@@ -64,7 +64,13 @@ Promise.all([
 		let path = '';
 
 		datas.forEach(({ meta, points }) => {
+			let maxPoint = { ele: 0 };
+
 			const pathSegment = points.map((d) => {
+				if (d.ele > maxPoint.ele) {
+					maxPoint = d;
+				}
+
 				const x = dp(width / 2 + elevationScale(d.ele) * Math.cos(distanceScale(d.dist + offset)), 1);
 				const y = dp(height / 2 + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
 
@@ -76,6 +82,8 @@ Promise.all([
 			meta.startAngle = offset;
 			offset += points[points.length - 1].dist;
 			meta.endAngle = offset;
+
+			meta.maxPoint = maxPoint;
 		});
 
 		datas.forEach(({ meta }) => {
@@ -114,6 +122,37 @@ Promise.all([
 		svg.append('path')
 			.attr('d', `M ${path.slice(1)}`)
 			.attr('class', 'data');
+
+		datas.forEach(({ meta }) => {
+
+			const maxAngle = distanceScale(meta.startAngle + meta.maxPoint.dist);
+			const maxRadius = elevationScale(meta.maxPoint.ele) - 3;
+
+			const maxX = width / 2 + dp(maxRadius * Math.cos(maxAngle), 1);
+			const maxY = width / 2 + dp(maxRadius * Math.sin(maxAngle), 1);
+
+			// Rotate by an extra 5deg
+			let degs = maxAngle / Math.PI * 180 + 95;
+
+			if (degs > 90 && degs < 270) {
+				// Do previous rotation in other direction: -10
+				degs = degs - 190;
+			}
+
+			const group = svg.append('g')
+				.attr('transform', `translate(${maxX}, ${maxY}) rotate(${degs})`)
+				.attr('class', 'max-ele');
+
+			group.append('rect')
+				.attr('width', 37)
+				.attr('height', 10)
+				.attr('x', 3)
+				.attr('y', -6);
+
+			group.append('text')
+				.text(meta.maxPoint.ele + 'm')
+				.attr('x', 5);
+		});
 
 		svg.append('text')
 			.text('LANDS END TO')
