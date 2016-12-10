@@ -10,10 +10,7 @@ function getGpxData(path) {
 
 			const meta = {
 				name: xml.querySelector('trk > name').textContent,
-				date: new Date(xml.querySelector('metadata time').textContent),
-				distance: Number(xml.querySelector('metadata distance').textContent),
-				duration: xml.querySelector('metadata duration').textContent,
-				elevation: Number(xml.querySelector('metadata elevation').textContent)
+				date: new Date(xml.querySelector('metadata time').textContent)
 			};
 
 			const points = Array.from(xml.querySelectorAll('trkpt'))

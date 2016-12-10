@@ -31,7 +31,8 @@ function RadialElevation(selector, datas) {
 			enabled: false,
 			min: 112.5,
 			max: 237.5
-		}
+		},
+		distanceUnits: 'miles'
 	};
 
 	this.datas = datas;
@@ -163,15 +164,16 @@ RadialElevation.prototype.drawDaySections = function () {
 		.attr('y', 4);
 
 	dayTitles.append('text')
-		.text(({ meta }) => `${meta.distance} miles`)
+		.text(({ points }) => this._formatDistance(points[points.length - 1].dist))
 		.attr('class', 'meta')
 		.attr('y', 13);
 };
 
 RadialElevation.prototype.drawDistanceMarkers = function () {
-	// Draw line every 160934 metres, which is a mile
-	for (let i = 160934; i < this.totalDist; i += 160934) {
-		const angle =	this.scales.distance(i);
+	const factor = this.config.distanceUnits === 'km' ? 100000 : 160934;
+
+	for (let i = 1; i * factor < this.totalDist; i++) {
+		const angle =	this.scales.distance(i * factor);
 
 		const radius = this.scales.elevation(this.tickVals[this.tickVals.length - 1]);
 
@@ -189,7 +191,7 @@ RadialElevation.prototype.drawDistanceMarkers = function () {
 		}
 
 		this.svg.append('text')
-			.text(i / 1609.34 + ' miles')
+			.text(this._formatDistance(i * factor))
 			.attr('class', 'meta meta-distance')
 			.attr('transform', `translate(${this.config.origin.x + x * 1.02}, ${this.config.origin.y + y * 1.02}) rotate(${degs})`);
 	}
@@ -255,6 +257,11 @@ RadialElevation.prototype.drawCentralTitle = function () {
 		.attr('class', 'title')
 		.attr('x', this.config.origin.x)
 		.attr('y', this.config.origin.y + 50);
+};
+
+RadialElevation.prototype._formatDistance = function (num, figs = 0) {
+	const factor = this.config.distanceUnits === 'km' ? 1000 : 1609.34;
+	return `${dp(num / factor, figs)} ${this.config.distanceUnits}`;
 };
 
 function dp(num, figs) {
