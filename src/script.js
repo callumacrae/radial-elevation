@@ -105,7 +105,7 @@ Promise.all([
 
 			let degs = halfwayAngle / Math.PI * 180 + 90;
 
-			if (degs > 135 && degs < 225) {
+			if (degs > 112.5 && degs < 237.5) {
 				degs -= 180;
 			}
 
@@ -115,11 +115,12 @@ Promise.all([
 			group.append('text')
 				.text(meta.name.toUpperCase())
 				.attr('class', 'day')
-				.attr('y', -9);
+				.attr('y', 4);
 
 			group.append('text')
 				.text(`${meta.distance} miles`)
-				.attr('class', 'meta');
+				.attr('class', 'meta')
+				.attr('y', 13);
 		});
 
 		// Draw line every 160934 metres, which is a mile
@@ -137,7 +138,7 @@ Promise.all([
 
 			let degs = angle / Math.PI * 180 + 90;
 
-			if (degs > 135 && degs < 225) {
+			if (degs > 112.5 && degs < 237.5) {
 				degs -= 180;
 			}
 
@@ -162,7 +163,7 @@ Promise.all([
 			// Rotate by an extra 5deg
 			let degs = maxAngle / Math.PI * 180 + 95;
 
-			if (degs > 90 && degs < 270) {
+			if (degs > 112.5 && degs < 237.5) {
 				// Do previous rotation in other direction: -10
 				degs = degs - 190;
 			}
