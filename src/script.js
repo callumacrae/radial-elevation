@@ -95,42 +95,49 @@ Promise.all([
 			meta.maxPoint = maxPoint;
 		});
 
-		datas.forEach(({ meta }) => {
-			const angle = distanceScale(meta.startAngle);
+		const days = svg.selectAll('.day')
+			.data(datas)
+			.enter()
+			.append('g');
 
-			const radius = elevationScale(tickVals[tickVals.length - 1]);
+		days.append('path')
+			.attr('d', ({ meta }) => {
+				const angle = distanceScale(meta.startAngle);
 
-			const x = dp(radius * Math.cos(angle), 1);
-			const y = dp(radius * Math.sin(angle), 1);
+				const radius = elevationScale(tickVals[tickVals.length - 1]);
 
-			svg.append('path')
-				.attr('d', `M ${origin} l ${x} ${y}`)
-				.attr('class', 'divider');
+				const x = dp(radius * Math.cos(angle), 1);
+				const y = dp(radius * Math.sin(angle), 1);
 
-			const halfwayAngle = distanceScale((meta.startAngle + meta.endAngle) / 2);
+				return `M ${origin} l ${x} ${y}`;
+			})
+			.attr('class', 'divider');
 
-			const textX = origin.x + dp(365 * Math.cos(halfwayAngle), 1);
-			const textY = origin.y + dp(365 * Math.sin(halfwayAngle), 1);
+		const dayTitles = days.append('g')
+			.attr('transform', ({ meta }) => {
+				const halfwayAngle = distanceScale((meta.startAngle + meta.endAngle) / 2);
 
-			let degs = halfwayAngle / Math.PI * 180 + 90;
+				const textX = origin.x + dp(365 * Math.cos(halfwayAngle), 1);
+				const textY = origin.y + dp(365 * Math.sin(halfwayAngle), 1);
 
-			if (degs > flip.min && degs < flip.max) {
-				degs -= 180;
-			}
+				let degs = halfwayAngle / Math.PI * 180 + 90;
 
-			const group = svg.append('g')
-				.attr('transform', `translate(${textX}, ${textY}) rotate(${degs})`);
+				if (degs > flip.min && degs < flip.max) {
+					degs -= 180;
+				}
 
-			group.append('text')
-				.text(meta.name.toUpperCase())
-				.attr('class', 'day')
-				.attr('y', 4);
+				return `translate(${textX}, ${textY}) rotate(${degs})`;
+			});
 
-			group.append('text')
-				.text(`${meta.distance} miles`)
-				.attr('class', 'meta')
-				.attr('y', 13);
-		});
+		dayTitles.append('text')
+			.text(({ meta }) => meta.name.toUpperCase())
+			.attr('class', 'day')
+			.attr('y', 4);
+
+		dayTitles.append('text')
+			.text(({ meta }) => `${meta.distance} miles`)
+			.attr('class', 'meta')
+			.attr('y', 13);
 
 		// Draw line every 160934 metres, which is a mile
 		for (let i = 160934; i < totalDist; i += 160934) {
@@ -161,36 +168,39 @@ Promise.all([
 			.attr('d', `M ${path.slice(1)}`)
 			.attr('class', 'data');
 
-		datas.forEach(({ meta }) => {
+		const groups = svg.selectAll('.max-ele')
+			.data(datas)
+			.enter()
+			.append('g')
+			.attr('transform', ({ meta }) => {
+				const maxAngle = distanceScale(meta.startAngle + meta.maxPoint.dist);
+				const maxRadius = elevationScale(meta.maxPoint.ele) - 3;
 
-			const maxAngle = distanceScale(meta.startAngle + meta.maxPoint.dist);
-			const maxRadius = elevationScale(meta.maxPoint.ele) - 3;
+				const maxX = origin.x + dp(maxRadius * Math.cos(maxAngle), 1);
+				const maxY = origin.y + dp(maxRadius * Math.sin(maxAngle), 1);
 
-			const maxX = origin.x + dp(maxRadius * Math.cos(maxAngle), 1);
-			const maxY = origin.y + dp(maxRadius * Math.sin(maxAngle), 1);
+				// Rotate by an extra 5deg
+				let degs = maxAngle / Math.PI * 180 + 95;
 
-			// Rotate by an extra 5deg
-			let degs = maxAngle / Math.PI * 180 + 95;
+				if (degs > flip.min && degs < flip.max) {
+					// Do previous rotation in other direction: -10
+					degs = degs - 190;
+				}
 
-			if (degs > flip.min && degs < flip.max) {
-				// Do previous rotation in other direction: -10
-				degs = degs - 190;
-			}
+				return `translate(${maxX}, ${maxY}) rotate(${degs})`;
+			})
+			.attr('class', 'max-ele');
 
-			const group = svg.append('g')
-				.attr('transform', `translate(${maxX}, ${maxY}) rotate(${degs})`)
-				.attr('class', 'max-ele');
+		// Text background
+		groups.append('rect')
+			.attr('width', 37)
+			.attr('height', 10)
+			.attr('x', 3)
+			.attr('y', -6);
 
-			group.append('rect')
-				.attr('width', 37)
-				.attr('height', 10)
-				.attr('x', 3)
-				.attr('y', -6);
-
-			group.append('text')
-				.text(meta.maxPoint.ele + 'm')
-				.attr('x', 5);
-		});
+		groups.append('text')
+			.text(({ meta }) => meta.maxPoint.ele + 'm')
+			.attr('x', 5);
 
 		svg.append('text')
 			.text('SIX DAYS')
