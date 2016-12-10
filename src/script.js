@@ -12,9 +12,9 @@ Promise.all([
 	.then((datas) => {
 		const chart = new RadialElevation('svg', datas);
 		chart.preprocessData();
-		chart.drawAxis();
+		chart.drawAxis(4);
 		chart.drawDaySections();
-		chart.drawDistanceMarkers();
+		chart.drawDistanceMarkers(50);
 		chart.drawSplatter();
 		chart.drawMaxElevations();
 		chart.drawCentralTitle();
@@ -89,13 +89,13 @@ RadialElevation.prototype.preprocessData = function () {
 	this.pathData = path;
 };
 
-RadialElevation.prototype.drawAxis = function () {
+RadialElevation.prototype.drawAxis = function (ticks) {
 	const tickVals = this.tickVals = [];
 
 	const reverseScale = this.scales.elevation.copy().range(this.scales.elevation.range().reverse());
 
 	const axis = d3.axisRight(reverseScale)
-		.ticks(4)
+		.ticks(ticks)
 		.tickFormat((num) => {
 			tickVals.push(num);
 			return `${num}m`;
@@ -169,8 +169,8 @@ RadialElevation.prototype.drawDaySections = function () {
 		.attr('y', 13);
 };
 
-RadialElevation.prototype.drawDistanceMarkers = function () {
-	const factor = this.config.distanceUnits === 'km' ? 100000 : 160934;
+RadialElevation.prototype.drawDistanceMarkers = function (every) {
+	const factor = every * (this.config.distanceUnits === 'km' ? 1000 : 1609.34);
 
 	for (let i = 1; i * factor < this.totalDist; i++) {
 		const angle =	this.scales.distance(i * factor);
