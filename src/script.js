@@ -115,13 +115,37 @@ Promise.all([
 			group.append('text')
 				.text(meta.name.toUpperCase())
 				.attr('class', 'day')
-				.attr('y', -5);
+				.attr('y', -9);
 
 			group.append('text')
 				.text(`${meta.distance} miles`)
-				.attr('class', 'meta')
-				.attr('y', 9);
+				.attr('class', 'meta');
 		});
+
+		// Draw line every 160934 metres, which is a mile
+		for (let i = 160934; i < totalDist; i += 160934) {
+			const angle =	distanceScale(i);
+
+			const radius = elevationScale(tickVals[tickVals.length - 1]);
+
+			const x = dp(radius * Math.cos(angle), 1);
+			const y = dp(radius * Math.sin(angle), 1);
+
+			svg.append('path')
+				.attr('d', `M ${width / 2} ${width / 2} l ${x} ${y}`)
+				.attr('class', 'distance-divider');
+
+			let degs = angle / Math.PI * 180 + 90;
+
+			if (degs > 135 && degs < 225) {
+				degs -= 180;
+			}
+
+			svg.append('text')
+				.text(i / 1609.34 + ' miles')
+				.attr('class', 'meta meta-distance')
+				.attr('transform', `translate(${width / 2 + x * 1.02}, ${width / 2 + y * 1.02}) rotate(${degs})`);
+		}
 
 		svg.append('path')
 			.attr('d', `M ${path.slice(1)}`)

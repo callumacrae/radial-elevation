@@ -30,10 +30,7 @@ function getGpxData(path) {
 					return;
 				}
 
-				const lastPoint = points[i - 1];
-
-				// @todo: use haversine formula
-				dist += Math.pow(Math.pow(point.lat - lastPoint.lat, 2) + Math.pow(point.lon - lastPoint.lon, 2), 0.5);
+				dist += distanceBetweenPoints(points[i - 1], point);
 
 				point.dist = dist;
 			});
@@ -41,6 +38,24 @@ function getGpxData(path) {
 			resolve({ meta, points });
 		});
 	});
+}
+
+// Use the haversine formula to calculate distance
+function distanceBetweenPoints(pointA, pointB) {
+	var RADIUS_OF_EARTH = 6371e3; // Radius of earth in metres
+	var φ1 = toRadians(pointA.lat);
+	var φ2 = toRadians(pointB.lat);
+	var Δφ = toRadians(pointB.lat - pointA.lat);
+	var Δλ = toRadians(pointB.lon - pointA.lon);
+
+	var a = Math.pow(Math.sin(Δφ / 2), 2) + Math.cos(φ1) * Math.cos(φ2) * Math.pow(Math.sin(Δλ / 2), 2);
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+	return RADIUS_OF_EARTH * c;
+}
+
+function toRadians(degs) {
+	return degs / 180 * Math.PI;
 }
 
 module.exports = getGpxData;
