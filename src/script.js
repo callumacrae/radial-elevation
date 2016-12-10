@@ -14,6 +14,15 @@ Promise.all([
 		const width = svg.attr('width');
 		const height = svg.attr('height');
 
+		const origin = { x: 400, y: 400, toString() {
+			return `${this.x} ${this.y}`;
+		}};
+
+		const flip = {
+			min: 112.5,
+			max: 237.5
+		};
+
 		const totalDist = datas.reduce((total, { points }) => total + points[points.length - 1].dist, 0);
 
 		const distanceScale = d3.scaleLinear()
@@ -42,7 +51,7 @@ Promise.all([
 		svg.append('g')
 			.call(axis)
 			.attr('class', 'axis')
-			.attr('transform', 'translate(400, -100)')
+			.attr('transform', `translate(${origin.x} ${origin.y - 500})`)
 			.selectAll('text')
 			.attr('transform', 'rotate(3)');
 
@@ -58,7 +67,7 @@ Promise.all([
 			.append('path')
 			.attr('class', 'circle-axis')
 			.attr('d', arc)
-			.attr('transform', `translate(${width / 2}, ${width / 2})`);
+			.attr('transform', `translate(${origin})`);
 
 		let offset = 0;
 		let path = '';
@@ -71,8 +80,8 @@ Promise.all([
 					maxPoint = d;
 				}
 
-				const x = dp(width / 2 + elevationScale(d.ele) * Math.cos(distanceScale(d.dist + offset)), 1);
-				const y = dp(width / 2 + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
+				const x = dp(origin.x + elevationScale(d.ele) * Math.cos(distanceScale(d.dist + offset)), 1);
+				const y = dp(origin.y + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
 
 				return `L ${x} ${y}`;
 			}).join(' ');
@@ -95,17 +104,17 @@ Promise.all([
 			const y = dp(radius * Math.sin(angle), 1);
 
 			svg.append('path')
-				.attr('d', `M ${width / 2} ${width / 2} l ${x} ${y}`)
+				.attr('d', `M ${origin} l ${x} ${y}`)
 				.attr('class', 'divider');
 
 			const halfwayAngle = distanceScale((meta.startAngle + meta.endAngle) / 2);
 
-			const textX = width / 2 + dp(365 * Math.cos(halfwayAngle), 1);
-			const textY = width / 2 + dp(365 * Math.sin(halfwayAngle), 1);
+			const textX = origin.x + dp(365 * Math.cos(halfwayAngle), 1);
+			const textY = origin.y + dp(365 * Math.sin(halfwayAngle), 1);
 
 			let degs = halfwayAngle / Math.PI * 180 + 90;
 
-			if (degs > 112.5 && degs < 237.5) {
+			if (degs > flip.min && degs < flip.max) {
 				degs -= 180;
 			}
 
@@ -133,19 +142,19 @@ Promise.all([
 			const y = dp(radius * Math.sin(angle), 1);
 
 			svg.append('path')
-				.attr('d', `M ${width / 2} ${width / 2} l ${x} ${y}`)
+				.attr('d', `M ${origin} l ${x} ${y}`)
 				.attr('class', 'distance-divider');
 
 			let degs = angle / Math.PI * 180 + 90;
 
-			if (degs > 112.5 && degs < 237.5) {
+			if (degs > flip.min && degs < flip.max) {
 				degs -= 180;
 			}
 
 			svg.append('text')
 				.text(i / 1609.34 + ' miles')
 				.attr('class', 'meta meta-distance')
-				.attr('transform', `translate(${width / 2 + x * 1.02}, ${width / 2 + y * 1.02}) rotate(${degs})`);
+				.attr('transform', `translate(${origin.x + x * 1.02}, ${origin.y + y * 1.02}) rotate(${degs})`);
 		}
 
 		svg.append('path')
@@ -157,13 +166,13 @@ Promise.all([
 			const maxAngle = distanceScale(meta.startAngle + meta.maxPoint.dist);
 			const maxRadius = elevationScale(meta.maxPoint.ele) - 3;
 
-			const maxX = width / 2 + dp(maxRadius * Math.cos(maxAngle), 1);
-			const maxY = width / 2 + dp(maxRadius * Math.sin(maxAngle), 1);
+			const maxX = origin.x + dp(maxRadius * Math.cos(maxAngle), 1);
+			const maxY = origin.y + dp(maxRadius * Math.sin(maxAngle), 1);
 
 			// Rotate by an extra 5deg
 			let degs = maxAngle / Math.PI * 180 + 95;
 
-			if (degs > 112.5 && degs < 237.5) {
+			if (degs > flip.min && degs < flip.max) {
 				// Do previous rotation in other direction: -10
 				degs = degs - 190;
 			}
@@ -186,20 +195,20 @@ Promise.all([
 		svg.append('text')
 			.text('SIX DAYS')
 			.attr('class', 'title')
-			.attr('x', width / 2)
-			.attr('y', width / 2 - 30);
+			.attr('x', origin.x)
+			.attr('y', origin.y - 30);
 
 		svg.append('text')
 			.text('1,018 MILES RIDDEN')
 			.attr('class', 'title')
-			.attr('x', width / 2)
-			.attr('y', width / 2 + 10);
+			.attr('x', origin.x)
+			.attr('y', origin.y + 10);
 
 		svg.append('text')
 			.text('50,048ft CLIMBED')
 			.attr('class', 'title')
-			.attr('x', width / 2)
-			.attr('y', width / 2 + 50);
+			.attr('x', origin.x)
+			.attr('y', origin.y + 50);
 	});
 
 function dp(num, figs) {
