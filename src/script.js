@@ -103,10 +103,14 @@ Promise.all([
 			const textX = width / 2 + dp(365 * Math.cos(halfwayAngle), 1);
 			const textY = width / 2 + dp(365 * Math.sin(halfwayAngle), 1);
 
-			const degs = halfwayAngle / Math.PI * 180 + 90;
+			let degs = halfwayAngle / Math.PI * 180 + 90;
+
+			if (degs > 135 && degs < 225) {
+				degs -= 180;
+			}
 
 			const group = svg.append('g')
-				.attr('transform', `translate(${textX}, ${textY}) rotate(${((degs + 90) % 180) - 90})`);
+				.attr('transform', `translate(${textX}, ${textY}) rotate(${degs})`);
 
 			group.append('text')
 				.text(meta.name.toUpperCase())
