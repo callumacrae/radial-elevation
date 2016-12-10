@@ -14,11 +14,13 @@ Promise.all([
 		const width = svg.attr('width');
 		const height = svg.attr('height');
 
+		const origin = { x: 600, y: 1600};
+
 		const totalDist = datas.reduce((total, { points }) => total + points[points.length - 1].dist, 0);
 
 		const distanceScale = d3.scaleLinear()
 			.domain([0, totalDist])
-			.range([-Math.PI / 2, Math.PI / 2 * 3]);
+			.range([Math.PI / 8 * 11, Math.PI / 8 * 13]);
 
 		const extent = datas.reduce(([min, max], { points }) => {
 			return points.reduce(([innerMin, innerMax], { ele }) => {
@@ -28,7 +30,7 @@ Promise.all([
 
 		const elevationScale = d3.scaleLinear()
 			.domain(extent)
-			.range([150, 350]);
+			.range([1150, 1350]);
 
 		const tickVals = [];
 
@@ -42,9 +44,9 @@ Promise.all([
 		svg.append('g')
 			.call(axis)
 			.attr('class', 'axis')
-			.attr('transform', 'translate(400, -100)')
+			.attr('transform', `translate(${origin.x}, -900)`)
 			.selectAll('text')
-			.attr('transform', 'rotate(3)');
+			.attr('transform', 'rotate(1)');
 
 		const arc = d3.arc()
 			.innerRadius((d) => elevationScale(d) - 1)
@@ -58,7 +60,7 @@ Promise.all([
 			.append('path')
 			.attr('class', 'circle-axis')
 			.attr('d', arc)
-			.attr('transform', `translate(${width / 2}, ${width / 2})`);
+			.attr('transform', `translate(${origin.x}, ${origin.y})`);
 
 		let offset = 0;
 		let path = '';
@@ -71,8 +73,8 @@ Promise.all([
 					maxPoint = d;
 				}
 
-				const x = dp(width / 2 + elevationScale(d.ele) * Math.cos(distanceScale(d.dist + offset)), 1);
-				const y = dp(width / 2 + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
+				const x = dp(origin.x + elevationScale(d.ele) * Math.cos(distanceScale(d.dist + offset)), 1);
+				const y = dp(origin.y + elevationScale(d.ele) * Math.sin(distanceScale(d.dist + offset)), 1);
 
 				return `L ${x} ${y}`;
 			}).join(' ');
@@ -89,19 +91,22 @@ Promise.all([
 		datas.forEach(({ meta }) => {
 			const angle = distanceScale(meta.startAngle);
 
-			const radius = elevationScale(tickVals[tickVals.length - 1]);
+			const startRadius = 1150;
+			const startX = origin.x + dp(startRadius * Math.cos(angle), 1);
+			const startY = origin.y + dp(startRadius * Math.sin(angle), 1);
 
-			const x = dp(radius * Math.cos(angle), 1);
-			const y = dp(radius * Math.sin(angle), 1);
+			const endRadius = elevationScale(tickVals[tickVals.length - 1]);
+			const endX = origin.x + dp(endRadius * Math.cos(angle), 1);
+			const endY = origin.y + dp(endRadius * Math.sin(angle), 1);
 
 			svg.append('path')
-				.attr('d', `M ${width / 2} ${width / 2} l ${x} ${y}`)
+				.attr('d', `M ${startX} ${startY} L ${endX} ${endY}`)
 				.attr('class', 'divider');
 
 			const halfwayAngle = distanceScale((meta.startAngle + meta.endAngle) / 2);
 
-			const textX = width / 2 + dp(365 * Math.cos(halfwayAngle), 1);
-			const textY = width / 2 + dp(365 * Math.sin(halfwayAngle), 1);
+			const textX = origin.x + dp(365 * Math.cos(halfwayAngle), 1);
+			const textY = origin.y + dp(365 * Math.sin(halfwayAngle), 1);
 
 			let degs = halfwayAngle / Math.PI * 180 + 90;
 
@@ -123,8 +128,13 @@ Promise.all([
 				.attr('y', 9);
 		});
 
+		const startX = origin.x + dp(1150 * Math.cos(distanceScale(0)), 1);
+		const startY = origin.y + dp(1150 * Math.sin(distanceScale(0)), 1);
+		const endX = origin.x + dp(1150 * Math.cos(distanceScale(totalDist)), 1);
+		const endY = origin.y + dp(1150 * Math.sin(distanceScale(totalDist)), 1);
+
 		svg.append('path')
-			.attr('d', `M ${path.slice(1)}`)
+			.attr('d', `M ${origin.x} ${origin.y - 500} L ${startX} ${startY} ${path} L ${endX} ${endY}`)
 			.attr('class', 'data');
 
 		datas.forEach(({ meta }) => {
@@ -132,15 +142,15 @@ Promise.all([
 			const maxAngle = distanceScale(meta.startAngle + meta.maxPoint.dist);
 			const maxRadius = elevationScale(meta.maxPoint.ele) - 3;
 
-			const maxX = width / 2 + dp(maxRadius * Math.cos(maxAngle), 1);
-			const maxY = width / 2 + dp(maxRadius * Math.sin(maxAngle), 1);
+			const maxX = origin.x + dp(maxRadius * Math.cos(maxAngle), 1);
+			const maxY = origin.y + dp(maxRadius * Math.sin(maxAngle), 1);
 
 			// Rotate by an extra 5deg
-			let degs = maxAngle / Math.PI * 180 + 95;
+			let degs = maxAngle / Math.PI * 180 + 91;
 
 			if (degs > 90 && degs < 270) {
-				// Do previous rotation in other direction: -10
-				degs = degs - 190;
+				// Do previous rotation in other direction: -6
+				degs = degs - 182;
 			}
 
 			const group = svg.append('g')
@@ -157,6 +167,12 @@ Promise.all([
 				.text(meta.maxPoint.ele + 'm')
 				.attr('x', 5);
 		});
+
+		svg.append('circle')
+			.attr('class', 'fill')
+			.attr('cx', origin.x)
+			.attr('cy', origin.y)
+			.attr('r', 1080);
 
 		svg.append('text')
 			.text('SIX DAYS')
