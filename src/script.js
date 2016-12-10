@@ -19,6 +19,7 @@ Promise.all([
 		}};
 
 		const flip = {
+			enabled: false,
 			min: 112.5,
 			max: 237.5
 		};
@@ -122,7 +123,7 @@ Promise.all([
 
 				let degs = halfwayAngle / Math.PI * 180 + 90;
 
-				if (degs > flip.min && degs < flip.max) {
+				if (flip.enabled && (degs > flip.min && degs < flip.max)) {
 					degs -= 180;
 				}
 
@@ -154,7 +155,7 @@ Promise.all([
 
 			let degs = angle / Math.PI * 180 + 90;
 
-			if (degs > flip.min && degs < flip.max) {
+			if (flip.enabled && (degs > flip.min && degs < flip.max)) {
 				degs -= 180;
 			}
 
@@ -182,7 +183,7 @@ Promise.all([
 				// Rotate by an extra 5deg
 				let degs = maxAngle / Math.PI * 180 + 95;
 
-				if (degs > flip.min && degs < flip.max) {
+				if (flip.enabled && (degs > flip.min && degs < flip.max)) {
 					// Do previous rotation in other direction: -10
 					degs = degs - 190;
 				}
