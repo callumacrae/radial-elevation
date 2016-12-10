@@ -159,29 +159,22 @@ Promise.all([
 		});
 
 		svg.append('text')
-			.text('LANDS END TO')
+			.text('SIX DAYS')
 			.attr('class', 'title')
 			.attr('x', width / 2)
-			.attr('y', width / 2 - 20);
+			.attr('y', width / 2 - 30);
 
 		svg.append('text')
-			.text('JOHN O\'GROATS')
+			.text('1,018 MILES RIDDEN')
 			.attr('class', 'title')
 			.attr('x', width / 2)
-			.attr('y', width / 2 + 20);
+			.attr('y', width / 2 + 10);
 
 		svg.append('text')
-			.text('2016')
+			.text('50,048ft CLIMBED')
 			.attr('class', 'title')
 			.attr('x', width / 2)
-			.attr('y', width / 2 + 60);
-
-
-		// Six days
-		// (31st July to 5th August)
-		// Reuben, Daniel, Jørgen, and Callum
-		// 1018 miles
-		// 50,048ft climbed
+			.attr('y', width / 2 + 50);
 	});
 
 function dp(num, figs) {
