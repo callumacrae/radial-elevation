@@ -88,14 +88,17 @@
 	</style>
 </head>
 <body>
-	<svg height="1200" width="800">
-		<g>
-			<text class="main" x="400" y="930" style="fill: #171E26; text-anchor: middle; font-size: 60px;">LANDS END</text>
-			<text class="main" x="400" y="975" style="fill: #171E26; text-anchor: middle; font-size: 35px;">TO JOHN O'GROATS</text>
-			<text class="main" x="400" y="1004" style="fill: #171E26; text-anchor: middle; font-size: 22px;">31st JULY TO 5th AUGUST 2016</text>
-			<text class="main" x="400" y="1030" style="fill: #171E26; text-anchor: middle; font-size: 19px;">REUBEN, DANIEL, JØRGEN &amp; CALLUM</text>
-		</g>
-	</svg>
+	<form>
+		<p>
+			Enter Strava ride IDs separated by commas:
+			<input type="text" id="rides" value="660407087,660903844,662353002,663381837">
+		</p>
+		<button>Generate</button>
+	</form>
+
+	<hr>
+
+	<svg height="800" width="800"></svg>
 	<script src="dist/app.js"></script>
 </body>
 </html>
